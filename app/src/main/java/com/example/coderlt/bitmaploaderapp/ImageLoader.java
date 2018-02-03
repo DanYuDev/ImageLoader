@@ -117,6 +117,7 @@ public class ImageLoader {
 
     /**
      * 不建议在 UI Thread 中加载图片，属于耗时操作
+     * 每次加载 Bitmap 都会往内存 MemoryCache 添加一份缓存(如果MemoryCache 中不存在的话)
      * @param uri
      * @param reqWidth
      * @param reqHeight
@@ -171,6 +172,9 @@ public class ImageLoader {
             return null;
         }
 
+        // 从网络拉取图片到 磁盘缓存中，而不需要内存缓存中，
+        // 因为最后调用 loadFromDisk() 会间接调用 MemoryCache 的添加操作
+        // 保证了MemoryCache 添加的唯一途径，程序逻辑很流畅
         String key = FileUtil.hashKeyFromUrl(uri);
         DiskLruCache.Editor editor = mDiskCache.edit(key);
         if(editor!=null){
